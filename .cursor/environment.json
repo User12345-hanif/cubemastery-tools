@@ -1,0 +1,17 @@
+{
+  "name": "cubemastery-tools",
+  "install": "npm ci",
+  "terminals": [
+    {
+      "name": "dev",
+      "command": "npm run dev -- --host 0.0.0.0 --port 5173",
+      "description": "Vite dev server for the CubeMastery SPA, served at http://localhost:5173."
+    }
+  ],
+  "ports": [
+    {
+      "name": "vite",
+      "port": 5173
+    }
+  ]
+}
