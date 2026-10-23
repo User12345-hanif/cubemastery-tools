@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { OLL_CASES, PLL_CASES } from '../trainerData'
 import { caseState } from '../cube'
 import { RefreshIcon } from '../icons'
+import { usePageMeta } from '../usePageMeta'
 
 const SCORE_KEY = 'cubemastery-trainer-score'
 
@@ -93,9 +94,12 @@ function AlgorithmTrainer() {
   const [revealed, setRevealed] = useState(false)
   const [score, setScore] = useState(loadScore)
 
-  useEffect(() => {
-    document.title = 'CubeMastery Algorithm Trainer \u2013 Learn OLL & PLL'
-  }, [])
+  usePageMeta({
+    title: 'CubeMastery Algorithm Trainer \u2013 Learn OLL & PLL',
+    description:
+      'Drill OLL and PLL algorithms with focused practice: pick a case or train at random to build recognition speed and muscle memory for speedcubing.',
+    path: '/algorithm-trainer',
+  })
 
   useEffect(() => {
     try {

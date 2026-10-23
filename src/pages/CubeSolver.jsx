@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { warmUpSolver, solveFacelets } from '../solver'
 import { useCopy } from '../useCopy'
+import { usePageMeta } from '../usePageMeta'
 import { Toast } from '../Toast'
 import { CopyIcon, CheckIcon } from '../icons'
 
@@ -65,9 +66,12 @@ function CubeSolver() {
   const [error, setError] = useState(null)
   const { copiedId, copy } = useCopy()
 
-  useEffect(() => {
-    document.title = "CubeMastery Cube Solver \u2013 Solve Any Rubik's Cube"
-  }, [])
+  usePageMeta({
+    title: "CubeMastery Cube Solver \u2013 Solve Any Rubik's Cube",
+    description:
+      'Paint your scrambled cube onto the net and get a short step-by-step solution. The free CubeMastery solver works for any standard 3x3 scramble, right in your browser.',
+    path: '/cube-solver',
+  })
 
   useEffect(() => warmUpSolver(() => setSolverReady(true)), [])
 
