@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://tools.cubemastery.com/</loc>
+  </url>
+  <url>
+    <loc>https://tools.cubemastery.com/scramble-generator</loc>
+  </url>
+  <url>
+    <loc>https://tools.cubemastery.com/cube-timer</loc>
+  </url>
+  <url>
+    <loc>https://tools.cubemastery.com/cube-solver</loc>
+  </url>
+  <url>
+    <loc>https://tools.cubemastery.com/algorithm-trainer</loc>
+  </url>
+  <url>
+    <loc>https://tools.cubemastery.com/patterns</loc>
+  </url>
+</urlset>

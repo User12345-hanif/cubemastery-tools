@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { generateScramble } from '../scramble'
 import { formatTime } from '../format'
+import { usePageMeta } from '../usePageMeta'
 
 const SOLVES_KEY = 'cubemastery-timer-solves'
 const INSPECTION_KEY = 'cubemastery-timer-inspection'
@@ -73,9 +74,12 @@ function CubeTimer() {
   const pendingPenalty = useRef(null)
   const ignoreNextRelease = useRef(false)
 
-  useEffect(() => {
-    document.title = 'CubeMastery Cube Timer \u2013 Speedcubing Timer with Inspection'
-  }, [])
+  usePageMeta({
+    title: 'CubeMastery Cube Timer \u2013 Speedcubing Timer with Inspection',
+    description:
+      'Free online speedcubing timer with WCA-style inspection time, scramble display and a session history with averages. Time your Rubik\'s Cube solves right in your browser.',
+    path: '/cube-timer',
+  })
 
   useEffect(() => {
     try {

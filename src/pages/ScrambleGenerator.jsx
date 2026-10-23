@@ -4,6 +4,8 @@ import { useCopy } from '../useCopy'
 import { Toast } from '../Toast'
 import { RefreshIcon, CopyIcon, CheckIcon } from '../icons'
 import { formatTime } from '../format'
+import { usePageMeta } from '../usePageMeta'
+import { SCRAMBLE_FAQ_JSONLD } from '../scrambleFaq'
 
 const HISTORY_KEY = 'cubemastery-scramble-history'
 const HISTORY_LIMIT = 10
@@ -28,10 +30,13 @@ function ScrambleGenerator() {
   const [elapsed, setElapsed] = useState(0)
   const timerStart = useRef(0)
 
-  useEffect(() => {
-    document.title =
-      'CubeMastery Scramble Generator \u2013 WCA-Style 2x2, 3x3, 4x4 & 5x5 Scrambles'
-  }, [])
+  usePageMeta({
+    title: 'CubeMastery Scramble Generator \u2013 WCA-Style 2x2, 3x3, 4x4 & 5x5 Scrambles',
+    description:
+      "Free WCA-style Rubik's Cube scramble generator for 2x2, 3x3, 4x4 and 5x5 with a built-in solve timer and scramble history. Generate and copy competition-quality scrambles instantly.",
+    path: '/scramble-generator',
+    jsonLd: SCRAMBLE_FAQ_JSONLD,
+  })
 
   useEffect(() => {
     try {

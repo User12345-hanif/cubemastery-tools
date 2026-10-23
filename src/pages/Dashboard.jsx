@@ -1,4 +1,5 @@
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
+import { usePageMeta } from '../usePageMeta'
 import { Link } from 'react-router-dom'
 import { formatTime } from '../format'
 
@@ -155,9 +156,11 @@ function useLocalStats() {
 }
 
 function Dashboard() {
-  useEffect(() => {
-    document.title = "CubeMastery Tools \u2013 Free Speedcubing Tools: Scrambles, Timer & Trainers"
-  }, [])
+  usePageMeta({
+    title: "CubeMastery Tools \u2013 Free Speedcubing Tools: Scrambles, Timer & Trainers",
+    description: "Free online speedcubing tools from CubeMastery: a Rubik's Cube solver, WCA scramble generator, cube timer, OLL and PLL algorithm trainer and pattern generator.",
+    path: "/",
+  })
 
   const stats = useLocalStats()
 
