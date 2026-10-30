@@ -18,6 +18,30 @@ const COLOR_OF_FACE = {
 
 const FACE_LABEL = { U: 'top', D: 'bottom', L: 'left', R: 'right', F: 'front', B: 'back' }
 
+// Single source of truth for the visible FAQ and the FAQPage JSON-LD below.
+const SOLVER_FAQ = [
+  {
+    q: "Is this Rubik's Cube solver free?",
+    a: 'Yes. The solver is free to use, with no sign-up, no download and no usage limit. It runs entirely in your browser.',
+  },
+  {
+    q: 'Do I need to know cube notation to use the solver?',
+    a: 'No. Every move in the solution is explained in plain words, such as "Turn the right face 90° clockwise", so you can follow along without knowing notation.',
+  },
+  {
+    q: 'Does the solver work for 2x2 or 4x4 cubes?',
+    a: "No — this solver is for the standard 3x3 Rubik's Cube only. Each face must have exactly 9 stickers of each color.",
+  },
+  {
+    q: 'What if my cube state is impossible?',
+    a: 'The solver will tell you the combination of colors is not a solvable cube. Double-check each face against your real cube.',
+  },
+  {
+    q: 'Is my cube data uploaded anywhere?',
+    a: 'No. The solver runs in your browser (a web worker on your own device), so the colors you enter never leave your device.',
+  },
+]
+
 function emptyFaces() {
   const faces = {}
   for (const f of FACE_ORDER) {
@@ -67,10 +91,19 @@ function CubeSolver() {
   const { copiedId, copy } = useCopy()
 
   usePageMeta({
-    title: "CubeMastery Cube Solver \u2013 Solve Any Rubik's Cube",
+    title: "Rubik's Cube Solver – Free Online 3x3 Solver | CubeMastery",
     description:
-      'Paint your scrambled cube onto the net and get a short step-by-step solution. The free CubeMastery solver works for any standard 3x3 scramble, right in your browser.',
+      'Free Rubik\'s Cube solver online. Paint your scrambled 3x3 cube onto the net and get a short step-by-step solution in your browser — no sign-up, no download.',
     path: '/cube-solver',
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: SOLVER_FAQ.map((item) => ({
+        '@type': 'Question',
+        name: item.q,
+        acceptedAnswer: { '@type': 'Answer', text: item.a },
+      })),
+    },
   })
 
   useEffect(() => warmUpSolver(() => setSolverReady(true)), [])
@@ -137,11 +170,12 @@ function CubeSolver() {
   return (
     <main className="main">
       <h1 className="title">
-        CubeMastery <span className="title-accent">Cube Solver</span>
+        Rubik's <span className="title-accent">Cube Solver</span>
       </h1>
       <p className="subtitle">
-        Copy your scrambled cube onto the net below and get a step-by-step solution. Hold your
-        cube with the white center facing up and the green center facing you.
+        Free online Rubik's Cube solver for any standard 3x3 scramble. Copy your scrambled cube
+        onto the net below and get a step-by-step solution &mdash; hold your cube with the white
+        center facing up and the green center facing you.
       </p>
 
       <section className="scramble-card solver-card" aria-label="Cube color input">
@@ -249,6 +283,64 @@ function CubeSolver() {
           )}
         </section>
       )}
+
+      <section className="scramble-card solver-info" aria-label="How to use the solver">
+        <h2>How to use the Rubik's Cube solver</h2>
+        <p>
+          The solver works from the colors of your own cube. Everything runs in your browser
+          &mdash; nothing is uploaded anywhere.
+        </p>
+        <ol className="step-list">
+          <li className="step-item">
+            <span className="step-num">1</span>
+            <span className="step-desc">
+              <strong>Paint your cube.</strong> Pick a color, then click the stickers on the net
+              to match your cube. Hold it with the white center on top and the green center
+              facing you. Each color must appear exactly 9 times.
+            </span>
+          </li>
+          <li className="step-item">
+            <span className="step-num">2</span>
+            <span className="step-desc">
+              <strong>Press Solve Cube.</strong> The solver checks your cube and finds a short
+              solution, then lists every move in order.
+            </span>
+          </li>
+          <li className="step-item">
+            <span className="step-num">3</span>
+            <span className="step-desc">
+              <strong>Follow the moves.</strong> Work through the steps one at a time. Each move
+              is shown in standard notation (R, U, F&hellip;) and explained in plain words, such
+              as &ldquo;Turn the right face 90&deg; clockwise.&rdquo;
+            </span>
+          </li>
+        </ol>
+      </section>
+
+      <section className="scramble-card solver-info" aria-label="Frequently asked questions">
+        <h2>Rubik's Cube solver &mdash; frequently asked questions</h2>
+        {SOLVER_FAQ.map((item) => (
+          <div key={item.q} className="faq-item">
+            <h3>{item.q}</h3>
+            <p>{item.a}</p>
+          </div>
+        ))}
+      </section>
+
+      <section className="scramble-card solver-info" aria-label="Learn more">
+        <h2>Learn more</h2>
+        <p>
+          New to cubing?{' '}
+          <a href="https://cubemastery.com/rubiks-cube-tutorial-step-by-step/">
+            Learn how to solve a Rubik's Cube step by step &rarr;
+          </a>
+        </p>
+        <p>
+          <a href="https://cubemastery.com/rubiks-cube-notation-explained/">
+            Rubik's Cube notation explained &rarr;
+          </a>
+        </p>
+      </section>
 
       <Toast visible={copiedId !== null}>Solution copied to clipboard</Toast>
     </main>
