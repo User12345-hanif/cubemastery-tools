@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { usePageMeta } from '../usePageMeta'
+import { ROUTE_META } from '../routeMeta'
 import { PATTERNS } from '../patterns'
 import { useCopy } from '../useCopy'
 import { Toast } from '../Toast'
@@ -9,12 +10,7 @@ function PatternGenerator() {
   const [query, setQuery] = useState('')
   const { copiedId, copy } = useCopy()
 
-  usePageMeta({
-    title: "CubeMastery Pattern Generator \u2013 Rubik's Cube Patterns & Algorithms",
-    description:
-      "Create classic Rubik's Cube patterns \u2014 Checkerboard, Superflip, Cube in Cube, Anaconda and more \u2014 with the exact algorithm for every pattern.",
-    path: '/patterns',
-  })
+  usePageMeta(ROUTE_META['/patterns'])
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()

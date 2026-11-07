@@ -1,5 +1,6 @@
-import { useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import { usePageMeta } from '../usePageMeta'
+import { ROUTE_META } from '../routeMeta'
 import { Link } from 'react-router-dom'
 import { formatTime } from '../format'
 
@@ -128,39 +129,51 @@ const FEATURES = [
   },
 ]
 
+const EMPTY_STATS = { solveCount: 0, best: '\u2014', attempts: 0, accuracy: '\u2014' }
+
+function readLocalStats() {
+  let solves = []
+  let trainer = { OLL: { correct: 0, incorrect: 0 }, PLL: { correct: 0, incorrect: 0 } }
+  try {
+    const s = JSON.parse(localStorage.getItem('cubemastery-timer-solves') ?? '[]')
+    if (Array.isArray(s)) solves = s
+    const t = JSON.parse(localStorage.getItem('cubemastery-trainer-score') ?? 'null')
+    if (t?.OLL && t?.PLL) trainer = t
+  } catch {
+    // Storage unavailable - show empty stats
+  }
+  const finite = solves
+    .filter((s) => s.penalty !== 'DNF')
+    .map((s) => s.ms + (s.penalty === '+2' ? 2000 : 0))
+  const attempts =
+    trainer.OLL.correct + trainer.OLL.incorrect + trainer.PLL.correct + trainer.PLL.incorrect
+  const correct = trainer.OLL.correct + trainer.PLL.correct
+  return {
+    solveCount: solves.length,
+    best: finite.length > 0 ? formatTime(Math.min(...finite)) : '\u2014',
+    attempts,
+    accuracy: attempts > 0 ? `${Math.round((correct / attempts) * 100)}%` : '\u2014',
+  }
+}
+
+// Stats are read from localStorage after mount, so the first render is
+// identical on the server (prerender) and the client (hydration).
 function useLocalStats() {
-  return useMemo(() => {
-    let solves = []
-    let trainer = { OLL: { correct: 0, incorrect: 0 }, PLL: { correct: 0, incorrect: 0 } }
-    try {
-      const s = JSON.parse(localStorage.getItem('cubemastery-timer-solves') ?? '[]')
-      if (Array.isArray(s)) solves = s
-      const t = JSON.parse(localStorage.getItem('cubemastery-trainer-score') ?? 'null')
-      if (t?.OLL && t?.PLL) trainer = t
-    } catch {
-      // Storage unavailable - show empty stats
-    }
-    const finite = solves
-      .filter((s) => s.penalty !== 'DNF')
-      .map((s) => s.ms + (s.penalty === '+2' ? 2000 : 0))
-    const attempts =
-      trainer.OLL.correct + trainer.OLL.incorrect + trainer.PLL.correct + trainer.PLL.incorrect
-    const correct = trainer.OLL.correct + trainer.PLL.correct
-    return {
-      solveCount: solves.length,
-      best: finite.length > 0 ? formatTime(Math.min(...finite)) : '\u2014',
-      attempts,
-      accuracy: attempts > 0 ? `${Math.round((correct / attempts) * 100)}%` : '\u2014',
-    }
+  const [stats, setStats] = useState(EMPTY_STATS)
+  // Intentional setState-in-effect (rule disabled below): stats live in
+  // localStorage, which does not exist during prerendering. Reading them in
+  // this mount effect keeps the first render identical to the prerendered
+  // HTML (hydration safety); the values appear immediately after mount.
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    setStats(readLocalStats())
   }, [])
+  /* eslint-enable react-hooks/set-state-in-effect */
+  return stats
 }
 
 function Dashboard() {
-  usePageMeta({
-    title: "CubeMastery Tools \u2013 Free Speedcubing Tools: Scrambles, Timer & Trainers",
-    description: "Free online speedcubing tools from CubeMastery: a Rubik's Cube solver, WCA scramble generator, cube timer, OLL and PLL algorithm trainer and pattern generator.",
-    path: "/",
-  })
+  usePageMeta(ROUTE_META['/'])
 
   const stats = useLocalStats()
 

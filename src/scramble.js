@@ -38,6 +38,16 @@ export const PUZZLES = {
 
 export const PUZZLE_IDS = Object.keys(PUZZLES)
 
+// Fixed 3x3 scramble used as the deterministic first render, so the
+// prerendered HTML and the client's first render are identical (hydration
+// safety). It is a real scramble produced by generateScramble('3x3'). The
+// app replaces it with a fresh random scramble in a mount effect, exactly as
+// before — every visit still starts with a new random scramble.
+export const INITIAL_SCRAMBLE_3X3 = [
+  'R', 'L', 'B2', 'R', "U'", "F'", "L'", 'B', 'L', 'D2',
+  "F'", 'L2', 'F', 'D2', 'R2', 'L', 'U', "B'", 'D', 'B2',
+]
+
 const MODIFIERS = ['', "'", '2']
 
 /**

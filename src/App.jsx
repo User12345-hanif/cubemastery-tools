@@ -1,4 +1,4 @@
-import { BrowserRouter, NavLink, Route, Routes } from 'react-router-dom'
+import { NavLink, Route, Routes } from 'react-router-dom'
 import Dashboard from './pages/Dashboard'
 import ScrambleGenerator from './pages/ScrambleGenerator'
 import PatternGenerator from './pages/PatternGenerator'
@@ -9,10 +9,13 @@ import './App.css'
 
 const navLinkClass = ({ isActive }) => `nav-link${isActive ? ' is-active' : ''}`
 
+// NOTE: App is the router-independent shell (header, routes, footer). The
+// router lives outside it so the same tree can render under a BrowserRouter
+// in the browser (main.jsx) and under a StaticRouter for prerendering
+// (entry-server.jsx). Do not add a router back in here.
 function App() {
   return (
-    <BrowserRouter>
-      <div className="app">
+    <div className="app">
         <header className="header">
           <div className="header-inner">
             <NavLink to="/" className="brand" aria-label="CubeMastery home">
@@ -53,9 +56,13 @@ function App() {
 
         <footer className="footer">
           <p>&copy; {new Date().getFullYear()} CubeMastery &mdash; tools for speedcubers</p>
+          <p>
+            <a href="https://cubemastery.com/">
+              Learn to solve a Rubik&rsquo;s Cube at CubeMastery
+            </a>
+          </p>
         </footer>
-      </div>
-    </BrowserRouter>
+    </div>
   )
 }
 

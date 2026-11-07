@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { PUZZLES, PUZZLE_IDS, generateScramble } from '../scramble'
+import { PUZZLES, PUZZLE_IDS, INITIAL_SCRAMBLE_3X3, generateScramble } from '../scramble'
 import { useCopy } from '../useCopy'
 import { Toast } from '../Toast'
 import { RefreshIcon, CopyIcon, CheckIcon } from '../icons'
 import { formatTime } from '../format'
 import { usePageMeta } from '../usePageMeta'
-import { SCRAMBLE_FAQ_JSONLD } from '../scrambleFaq'
+import { ROUTE_META } from '../routeMeta'
 
 const HISTORY_KEY = 'cubemastery-scramble-history'
 const HISTORY_LIMIT = 10
@@ -21,8 +21,12 @@ function loadHistory() {
 
 function ScrambleGenerator() {
   const [puzzle, setPuzzle] = useState('3x3')
-  const [moves, setMoves] = useState(() => generateScramble('3x3'))
-  const [history, setHistory] = useState(loadHistory)
+  // Deterministic first render (INITIAL_SCRAMBLE_3X3) so prerendered HTML
+  // and hydration match. localStorage history and a fresh random scramble
+  // are loaded in the mount effect below — client-only, after hydration.
+  const [moves, setMoves] = useState(() => [...INITIAL_SCRAMBLE_3X3])
+  const [history, setHistory] = useState([])
+  const [hydrated, setHydrated] = useState(false)
   const { copiedId, copy, reset } = useCopy()
   const copied = copiedId !== null
 
@@ -30,21 +34,29 @@ function ScrambleGenerator() {
   const [elapsed, setElapsed] = useState(0)
   const timerStart = useRef(0)
 
-  usePageMeta({
-    title: 'CubeMastery Scramble Generator \u2013 WCA-Style 2x2, 3x3, 4x4 & 5x5 Scrambles',
-    description:
-      "Free WCA-style Rubik's Cube scramble generator for 2x2, 3x3, 4x4 and 5x5 with a built-in solve timer and scramble history. Generate and copy competition-quality scrambles instantly.",
-    path: '/scramble-generator',
-    jsonLd: SCRAMBLE_FAQ_JSONLD,
-  })
+  usePageMeta(ROUTE_META['/scramble-generator'])
+
+  // Intentional setState-in-effect (rule disabled below): localStorage
+  // history and the random scramble do not exist during prerendering.
+  // Loading them in this mount effect keeps the first render identical to
+  // the prerendered HTML (hydration safety); the stored history and a fresh
+  // random scramble appear immediately after mount, as before.
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    setHistory(loadHistory())
+    setMoves(generateScramble('3x3'))
+    setHydrated(true)
+  }, [])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
+    if (!hydrated) return
     try {
       localStorage.setItem(HISTORY_KEY, JSON.stringify(history))
     } catch {
       // Storage unavailable (private mode / quota) - history stays in memory
     }
-  }, [history])
+  }, [history, hydrated])
 
   useEffect(() => {
     if (!timerRunning) return undefined

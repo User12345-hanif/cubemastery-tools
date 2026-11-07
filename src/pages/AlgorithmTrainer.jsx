@@ -3,6 +3,7 @@ import { OLL_CASES, PLL_CASES } from '../trainerData'
 import { caseState } from '../cube'
 import { RefreshIcon } from '../icons'
 import { usePageMeta } from '../usePageMeta'
+import { ROUTE_META } from '../routeMeta'
 
 const SCORE_KEY = 'cubemastery-trainer-score'
 
@@ -90,24 +91,37 @@ function CaseDiagram({ state, category }) {
 
 function AlgorithmTrainer() {
   const [category, setCategory] = useState('OLL')
-  const [currentCase, setCurrentCase] = useState(() => randomCase(OLL_CASES))
+  // Deterministic first render (first OLL case, empty score) so prerendered
+  // HTML and hydration match. The stored score and a random opening case
+  // are loaded in the mount effect below — client-only, after hydration.
+  const [currentCase, setCurrentCase] = useState(() => OLL_CASES[0])
   const [revealed, setRevealed] = useState(false)
-  const [score, setScore] = useState(loadScore)
+  const [score, setScore] = useState(() => structuredClone(EMPTY_SCORE))
+  const [hydrated, setHydrated] = useState(false)
 
-  usePageMeta({
-    title: 'CubeMastery Algorithm Trainer \u2013 Learn OLL & PLL',
-    description:
-      'Drill OLL and PLL algorithms with focused practice: pick a case or train at random to build recognition speed and muscle memory for speedcubing.',
-    path: '/algorithm-trainer',
-  })
+  usePageMeta(ROUTE_META['/algorithm-trainer'])
+
+  // Intentional setState-in-effect (rule disabled below): the stored score
+  // and the random opening case do not exist during prerendering. Loading
+  // them in this mount effect keeps the first render identical to the
+  // prerendered HTML (hydration safety); the stored score and a random case
+  // appear immediately after mount, as before.
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    setScore(loadScore())
+    setCurrentCase(randomCase(OLL_CASES))
+    setHydrated(true)
+  }, [])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
+    if (!hydrated) return
     try {
       localStorage.setItem(SCORE_KEY, JSON.stringify(score))
     } catch {
       // Storage unavailable - score stays in memory
     }
-  }, [score])
+  }, [score, hydrated])
 
   const diagramState = useMemo(() => caseState(currentCase.alg), [currentCase])
 
