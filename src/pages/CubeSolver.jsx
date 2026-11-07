@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { warmUpSolver, solveFacelets } from '../solver'
 import { useCopy } from '../useCopy'
 import { usePageMeta } from '../usePageMeta'
+import { ROUTE_META } from '../routeMeta'
+import { SOLVER_FAQ } from '../solverFaq'
 import { Toast } from '../Toast'
 import { CopyIcon, CheckIcon } from '../icons'
 
@@ -17,30 +19,6 @@ const COLOR_OF_FACE = {
 }
 
 const FACE_LABEL = { U: 'top', D: 'bottom', L: 'left', R: 'right', F: 'front', B: 'back' }
-
-// Single source of truth for the visible FAQ and the FAQPage JSON-LD below.
-const SOLVER_FAQ = [
-  {
-    q: "Is this Rubik's Cube solver free?",
-    a: 'Yes. The solver is free to use, with no sign-up, no download and no usage limit. It runs entirely in your browser.',
-  },
-  {
-    q: 'Do I need to know cube notation to use the solver?',
-    a: 'No. Every move in the solution is explained in plain words, such as "Turn the right face 90° clockwise", so you can follow along without knowing notation.',
-  },
-  {
-    q: 'Does the solver work for 2x2 or 4x4 cubes?',
-    a: "No — this solver is for the standard 3x3 Rubik's Cube only. Each face must have exactly 9 stickers of each color.",
-  },
-  {
-    q: 'What if my cube state is impossible?',
-    a: 'The solver will tell you the combination of colors is not a solvable cube. Double-check each face against your real cube.',
-  },
-  {
-    q: 'Is my cube data uploaded anywhere?',
-    a: 'No. The solver runs in your browser (a web worker on your own device), so the colors you enter never leave your device.',
-  },
-]
 
 function emptyFaces() {
   const faces = {}
@@ -90,21 +68,7 @@ function CubeSolver() {
   const [error, setError] = useState(null)
   const { copiedId, copy } = useCopy()
 
-  usePageMeta({
-    title: "Rubik's Cube Solver – Free Online 3x3 Solver | CubeMastery",
-    description:
-      'Free Rubik\'s Cube solver online. Paint your scrambled 3x3 cube onto the net and get a short step-by-step solution in your browser — no sign-up, no download.',
-    path: '/cube-solver',
-    jsonLd: {
-      '@context': 'https://schema.org',
-      '@type': 'FAQPage',
-      mainEntity: SOLVER_FAQ.map((item) => ({
-        '@type': 'Question',
-        name: item.q,
-        acceptedAnswer: { '@type': 'Answer', text: item.a },
-      })),
-    },
-  })
+  usePageMeta(ROUTE_META['/cube-solver'])
 
   useEffect(() => warmUpSolver(() => setSolverReady(true)), [])
 

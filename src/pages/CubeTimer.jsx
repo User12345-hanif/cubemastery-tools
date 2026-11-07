@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { generateScramble } from '../scramble'
+import { INITIAL_SCRAMBLE_3X3, generateScramble } from '../scramble'
 import { formatTime } from '../format'
 import { usePageMeta } from '../usePageMeta'
+import { ROUTE_META } from '../routeMeta'
 
 const SOLVES_KEY = 'cubemastery-timer-solves'
 const INSPECTION_KEY = 'cubemastery-timer-inspection'
@@ -63,9 +64,13 @@ function CubeTimer() {
   const [mode, setMode] = useState('idle')
   const [display, setDisplay] = useState(0)
   const [inspectionLeft, setInspectionLeft] = useState(INSPECTION_S)
-  const [solves, setSolves] = useState(loadSolves)
-  const [inspectionOn, setInspectionOn] = useState(loadInspectionPref)
-  const [scramble, setScramble] = useState(() => generateScramble('3x3').join(' '))
+  // Deterministic first render so prerendered HTML and hydration match.
+  // Stored solves / inspection preference and a fresh random scramble are
+  // loaded in the mount effect below — client-only, after hydration.
+  const [solves, setSolves] = useState([])
+  const [inspectionOn, setInspectionOn] = useState(true)
+  const [scramble, setScramble] = useState(INITIAL_SCRAMBLE_3X3.join(' '))
+  const [hydrated, setHydrated] = useState(false)
 
   const startRef = useRef(0)
   const inspectionStart = useRef(0)
@@ -74,28 +79,39 @@ function CubeTimer() {
   const pendingPenalty = useRef(null)
   const ignoreNextRelease = useRef(false)
 
-  usePageMeta({
-    title: 'CubeMastery Cube Timer \u2013 Speedcubing Timer with Inspection',
-    description:
-      'Free online speedcubing timer with WCA-style inspection time, scramble display and a session history with averages. Time your Rubik\'s Cube solves right in your browser.',
-    path: '/cube-timer',
-  })
+  usePageMeta(ROUTE_META['/cube-timer'])
+
+  // Intentional setState-in-effect (rule disabled below): stored solves /
+  // inspection preference and the random scramble do not exist during
+  // prerendering. Loading them in this mount effect keeps the first render
+  // identical to the prerendered HTML (hydration safety); the stored data
+  // and a fresh random scramble appear immediately after mount, as before.
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    setSolves(loadSolves())
+    setInspectionOn(loadInspectionPref())
+    setScramble(generateScramble('3x3').join(' '))
+    setHydrated(true)
+  }, [])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
+    if (!hydrated) return
     try {
       localStorage.setItem(SOLVES_KEY, JSON.stringify(solves))
     } catch {
       // Storage unavailable - history stays in memory
     }
-  }, [solves])
+  }, [solves, hydrated])
 
   useEffect(() => {
+    if (!hydrated) return
     try {
       localStorage.setItem(INSPECTION_KEY, inspectionOn ? 'on' : 'off')
     } catch {
       // Storage unavailable
     }
-  }, [inspectionOn])
+  }, [inspectionOn, hydrated])
 
   useEffect(() => () => clearTimeout(holdTimeout.current), [])
 

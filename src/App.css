@@ -1220,6 +1220,14 @@ kbd {
   color: var(--text-muted);
 }
 
+.footer p + p {
+  margin-top: 0.35rem;
+}
+
+.footer a {
+  color: inherit;
+}
+
 /* ---------- Mobile ---------- */
 
 @media (max-width: 520px) {

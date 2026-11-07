@@ -1,6 +1,26 @@
 {
   "rewrites": [
     {
+      "source": "/cube-solver",
+      "destination": "/cube-solver/index.html"
+    },
+    {
+      "source": "/scramble-generator",
+      "destination": "/scramble-generator/index.html"
+    },
+    {
+      "source": "/algorithm-trainer",
+      "destination": "/algorithm-trainer/index.html"
+    },
+    {
+      "source": "/cube-timer",
+      "destination": "/cube-timer/index.html"
+    },
+    {
+      "source": "/patterns",
+      "destination": "/patterns/index.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
